@@ -4,7 +4,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
 public class Logs {
 
-
+    String nome = "João";
     String nivel;
     Double[] listaAleatorios = new Double[3];
 
@@ -18,30 +18,30 @@ public class Logs {
 
 
 
-    void Login(Boolean in){
+    void criacaoServer(Boolean in){
         Thread login = new Thread(() -> {
 
-            String mensagem;
-            nivel = "INFO";
-            mensagem = "[%s] %s Fazendo consulta no banco de dados...";
-            System.out.println(mensagem.formatted(nivel,Horario()));
-
+            String mensagem = "";
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e){
                 nivel = "ERROR";
-                System.out.println("[%s] %s Consulta interrompida".formatted(nivel,Horario()));
+                System.out.println("[%s] %s conexão perdida".formatted(nivel,Horario()));
             }
             if (in == false) {
                 nivel = "ERRO";
-                mensagem = "[%s] %s erro de autentificação um dos campos Email, Senha e Codigo de ativação retorna null".formatted(nivel,Horario());
+                mensagem = "[%s] %s Usuario: %s Não tem permissão para criação de Servidores".formatted(nivel,Horario(),nome);
                 System.out.println(mensagem);
                 return;
-
             }
+
             nivel = "INFO";
-            mensagem = "[%s] %s login/cadastro realizado com sucesso! redirecionando...".formatted(nivel,Horario());
+            mensagem = "[%s] %s Usuario: %s criou servidor 'PADR-S501' ";
+            System.out.println(mensagem.formatted(nivel,Horario(),nome));
+
+            mensagem = "[%s] %s Servidor criado com sucesso!".formatted(nivel,Horario(),nome);
             System.out.println(mensagem);
+
         } );
         login.start();
 
@@ -52,6 +52,12 @@ public class Logs {
         Thread dados = new Thread(() -> {
         String saida;
 
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            nivel = "ERROR";
+            System.out.println("[%s] %s conexão perdida".formatted(nivel,Horario()));
+        }
 
         nivel = "INFO";
         String take = """
@@ -68,7 +74,7 @@ public class Logs {
             if (captura == false){
                 nivel =  "DEBUG";
                 saida = """
-                        [%s] %s Variavel 'NucleoCPU8' is undefined...""";
+                        [%s] %s Variavel 'PADR-S501' is undefined...""";
                 System.out.println(saida.formatted(nivel,Horario()));
 
                 try {
@@ -147,11 +153,11 @@ public class Logs {
             nivel = "WARN";
             System.out.println("""
             
-        [%s]
+        [             %s              ] 
         %s 
         ===============================
         CPU acima de %.2f...      
-        abrindo chamado no JIRA
+        abrindo chamado no JIRA...
         ===============================
         
                         """.formatted(nivel,Horario(),CPU));
@@ -171,11 +177,11 @@ public class Logs {
                 nivel = "WARN";
                 System.out.println("""
                         
-                        [%s] 
+                        [             %s              ]  
                         %s 
                         ===============================
                         RAM acima de %.2f... 
-                        abrindo chamado no JIRA
+                        abrindo chamado no JIRA...
                         ===============================
                         
                         """.formatted(nivel,Horario(),RAM));
@@ -193,7 +199,7 @@ public class Logs {
                 nivel = "WARN";
                 System.out.println("""
                         
-                        [%s] 
+                       [             %s              ] 
                         %s 
                         ===============================
                         Disco acima de %.2f... 
@@ -203,16 +209,17 @@ public class Logs {
                         """.formatted(nivel,Horario(),Disco));
             }
 
+       nivel = "INFO";
         System.out.println("""
                         
-                [%s] 
+                [             %s              ] 
                 %s 
                 ===============================
                 CPU: %.2f 
                 RAM: %.2f 
                 Disco: %.2f 
                 ===============================
-                Dados filtrados com sucesso encaminhando para dashboard...
+                Dados filtrados com sucesso...
                 
                         """.formatted(nivel,Horario(),CPU,RAM,Disco));
         });
