@@ -39,6 +39,12 @@ public class Logs {
             mensagem = "[%s] %s Usuario: %s criou servidor 'PADR-S501' ";
             System.out.println(mensagem.formatted(nivel,Horario(),nome));
 
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e){
+                nivel = "ERROR";
+                System.out.println("[%s] %s conexão perdida".formatted(nivel,Horario()));
+            }
             mensagem = "[%s] %s Servidor criado com sucesso!".formatted(nivel,Horario(),nome);
             System.out.println(mensagem);
 
