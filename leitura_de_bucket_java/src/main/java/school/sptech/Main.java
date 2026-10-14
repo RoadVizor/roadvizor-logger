@@ -12,8 +12,8 @@ public class Main {
         //isa->
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setUrl("jdbc:mysql://localhost:3306/roadvizor");
-        dataSource.setUsername("vilefort");
-        dataSource.setPassword("Rezende11.");
+        dataSource.setUsername("user");
+        dataSource.setPassword("senha");
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         EmpresaDao empresaDao = new EmpresaDao(jdbcTemplate);
