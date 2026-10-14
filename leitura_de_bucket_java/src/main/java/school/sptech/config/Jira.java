@@ -27,7 +27,7 @@ public class Jira {
         project.setKey(projectKey);
 
         IssueTypeDto type = new IssueTypeDto();
-        type.setName(issueType);
+        type.setId(issueType);
 
         IssueFieldsDto fields = new IssueFieldsDto();
         fields.setProject(project);

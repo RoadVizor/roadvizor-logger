@@ -2,6 +2,7 @@ package school.sptech;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import school.sptech.config.S3Client;
 import school.sptech.dao.EmpresaDao;
 import java.util.List;
 
@@ -11,15 +12,18 @@ public class Main {
         //isa->
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setUrl("jdbc:mysql://localhost:3306/roadvizor");
-        dataSource.setUsername("user");
-        dataSource.setPassword("senha");
+        dataSource.setUsername("vilefort");
+        dataSource.setPassword("Rezende11.");
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         EmpresaDao empresaDao = new EmpresaDao(jdbcTemplate);
 
-        String bucket = "nome_do_banco";
+        String bucket = "datalake-gold-roadvizor-sptech";
 
-        LeituraBucket leituraBucket = new LeituraBucket();
+        // cria o cliente da AWS uma vez só, usando a classe de config
+        software.amazon.awssdk.services.s3.S3Client s3Client = S3Client.createClient();
+
+        LeituraBucket leituraBucket = new LeituraBucket(s3Client);
         List<String> arquivos = leituraBucket.listarArquivos(bucket, "client/");
 
         // for para ler cada arquivo e abre chamado no Jira se houver alerta

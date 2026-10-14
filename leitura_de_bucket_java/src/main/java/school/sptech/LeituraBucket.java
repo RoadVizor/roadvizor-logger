@@ -19,22 +19,11 @@ import java.util.List;
 
 public class LeituraBucket {
 
-    private S3Client s3Client;
+        private final S3Client s3Client;
 
-    public LeituraBucket() {
-
-        // Cria o coiso para acessar o S3
-        s3Client = S3Client.builder()
-
-                // Define a região da AWS
-                .region(Region.US_EAST_1)
-
-                // Busca automaticamente as credenciais configuradas
-                .credentialsProvider(DefaultCredentialsProvider.create())
-
-                // Finaliza a criação do cliente
-                .build();
-    }
+        public LeituraBucket(S3Client s3Client) {
+            this.s3Client = s3Client;
+        }
 
     public List<String> listarArquivos(String nomeBucket, String prefixo) {
         List<String> arquivosNovos = new ArrayList<>();
@@ -92,6 +81,13 @@ public class LeituraBucket {
             String mac = raiz.get("endereco_mac").asText();
             System.out.println("MAC: " + mac);
 
+            // dados extras do servidor para detalhar o chamado (campos opcionais: se não vierem, usa "-")
+            String apelido = textoOuPadrao(raiz, "apelido");
+            String empresa = textoOuPadrao(raiz, "empresa");
+            String localizacaoKm = textoOuPadrao(raiz, "localizacao_km");
+            String sentido = textoOuPadrao(raiz, "sentido");
+            String timestamp = textoOuPadrao(raiz, "timestamp");
+
             EmpresaJiraDto config;
             try {
                 config = empresaDao.buscarConfigPorMac(mac);
@@ -112,6 +108,11 @@ public class LeituraBucket {
                 String unidade = metrica.get("unidade_medida").asText();
                 boolean alerta = metrica.get("em_alerta").asBoolean();
 
+                // limite máximo da métrica (opcional)
+                double limiteMax = metrica.has("limite_max") && !metrica.get("limite_max").isNull()
+                        ? metrica.get("limite_max").asDouble()
+                        : 0.0;
+
                 System.out.println(
                         "Componente: " + componente +
                                 " | Valor medido: " + valor +
@@ -119,25 +120,37 @@ public class LeituraBucket {
                                 " | Alerta: " + alerta);
 
                 // validação do alerta
-                if (alerta == true) {
+                if (alerta) {
 
                     // titulo informativo
-                    String titulo = "ALERTA CRÍTICO - %s - MAC %s".formatted(componente.toUpperCase(), mac);
+                    String titulo = "🚨 ALERTA: Componente [%s] em nível crítico no servidor %s"
+                            .formatted(componente, apelido);
 
                     // descrição mais detalhada sobre a situação do equipamento
                     String descricao = """
-                    {noformat}
-                    ==============================
-                    ALERTA CRÍTICA
-                    COMPONENTE: %s
-                    VALOR MEDIDO: %.2f %s
-                    MAC: %s
-                    ==============================
-                    {noformat}
-                    """.formatted(componente.toUpperCase(), valor, unidade, mac);
 
-                    String resposta = jira.createIssue(config.getProjectKey(), titulo, descricao, "Tarefa");
-                    System.out.println(resposta);
+                            🖥️ SERVIDOR : %s (MAC: %s)
+                            🏢 Empresa  : %s
+                            📍 Local    : %s (%s) | 🕒 Horário: %s
+                            -------------------------------------------------------------
+                            📊 Componente: %s
+                            📈 Valor     : %.2f %s (Limite: %.2f)
+                            =============================================================
+                            """.formatted(
+                            apelido,
+                            mac,
+                            empresa,
+                            localizacaoKm,
+                            sentido,
+                            timestamp,
+                            componente,
+                            valor,
+                            unidade != null ? unidade : "",
+                            limiteMax
+                    );
+
+                    String resposta = jira.createIssue(config.getProjectKey(), titulo, descricao, "10010");
+                    System.out.println("🚀 Chamado aberto com sucesso! Resposta do Jira:\n" + resposta);
                 }
             }
 
@@ -148,5 +161,10 @@ public class LeituraBucket {
         }
 
         return conteudo;
+    }
+
+    // lê um campo de texto do JSON; se não existir ou for nulo, devolve "-"
+    private String textoOuPadrao(JsonNode no, String campo) {
+        return no.has(campo) && !no.get(campo).isNull() ? no.get(campo).asText() : "-";
     }
 }

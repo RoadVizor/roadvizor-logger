@@ -8,3 +8,5 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+
+leitura_de_bucket_java/src/main/java/school/sptech/utils/Credentials.java
