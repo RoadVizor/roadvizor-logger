@@ -13,9 +13,10 @@ public class Main {
         String dbUrl = System.getenv("DB_URL");
         String dbUser = System.getenv("DB_USER");
         String dbPassword = System.getenv("DB_PASSWORD");
+        String bucket = System.getenv("BUCKET_NAME");
 
-        if (dbUrl == null || dbUser == null || dbPassword == null) {
-            throw new IllegalStateException("defina DB_URL, DB_USER e DB_PASSWORD nas variáveis de ambiente");
+        if (dbUrl == null || dbUser == null || dbPassword == null || bucket == null) {
+            throw new IllegalStateException("defina DB_URL, DB_USER e DB_PASSWORD, BUCKET_NAME nas variáveis de ambiente");
         }
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
@@ -26,7 +27,7 @@ public class Main {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         EmpresaDao empresaDao = new EmpresaDao(jdbcTemplate);
 
-        String bucket = "datalake-gold-roadvizor-sptech";
+
 
         // cria o cliente da AWS uma vez só, usando a classe de config
         software.amazon.awssdk.services.s3.S3Client s3Client = S3Client.create();
