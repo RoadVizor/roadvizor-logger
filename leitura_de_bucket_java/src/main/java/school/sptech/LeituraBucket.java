@@ -19,11 +19,11 @@ import java.util.List;
 
 public class LeituraBucket {
 
-        private final S3Client s3Client;
+    private final S3Client s3Client;
 
-        public LeituraBucket(S3Client s3Client) {
-            this.s3Client = s3Client;
-        }
+    public LeituraBucket(S3Client s3Client) {
+        this.s3Client = s3Client;
+    }
 
     public List<String> listarArquivos(String nomeBucket, String prefixo) {
         List<String> arquivosNovos = new ArrayList<>();
